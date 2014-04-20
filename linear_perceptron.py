@@ -2,53 +2,61 @@
 
 import numpy
 import math
+import pylab
 
-# load the training data and labels
+### load the training data and labels
 
 traindata = numpy.loadtxt("train2k.databw.35")
 label = numpy.loadtxt("train2k.label.35")
 
+### load test data
 
-# normalize each exmaple to have unit norm
+testdata = numpy.loadtxt("test200.databw.35")
+
+### normalize each exmaple to have unit norm
 
 norm_traindata = numpy.empty(traindata.size)
 norm_traindata.shape = (len(traindata[:,0]),len(traindata[0,:]))
 
 for i, row in enumerate(traindata):
     norm_traindata[i,:] = row / numpy.linalg.norm(row)
-  
     
-# create subsample of size 10
+norm_testdata = numpy.empty(testdata.size)
+norm_testdata.shape = (len(testdata[:,0]),len(testdata[0,:]))
 
-sub_data = norm_traindata[0:10,]
-sub_label = label[0:10,]
+for i, row in enumerate(testdata):
+    norm_testdata[i,:] = row / numpy.linalg.norm(row)  
+    
+### create subsample of size 10
+
+# sub_data = norm_traindata[0:10,]
+# sub_label = label[0:10,]
 
 
-# sample size and data dimension
+### sample size and data dimension
 
-N = len(sub_label)
-dim = len(sub_data[0,:])
+N = len(label)
+M = len(norm_testdata[:,0])
+dim = len(norm_traindata[0,:])
 
 
-# initial value of w
+######################### training #########################
+
+
+### initial value of w
 
 w = numpy.zeros(dim)
 
-# mistake recorder
+### mistake recorder
 
 mistake = numpy.empty(N)
 
-# prediction recorder 
+### training loop 
 
-prediction = numpy.empty(N)
-
-# loop 
-
-for i, x in enumerate(sub_data):
+for i, x in enumerate(norm_traindata):
     
     y_hat = math.copysign(1, numpy.dot(x,w))
-    y = sub_label[i]
-    prediction[i] = y_hat
+    y = label[i]
     
     if y == y_hat:
         mistake[i] = 0
@@ -59,4 +67,22 @@ for i, x in enumerate(sub_data):
         w = w - x
         mistake[i] = 1
         
-        
+
+######################### test #########################
+
+
+prediction = numpy.empty(M)
+
+for i, x in enumerate(norm_testdata):
+    prediction[i] = math.copysign(1, numpy.dot(x,w))
+    
+numpy.savetxt("test200.label.35.ushioda", prediction, fmt = '%i')
+
+
+######################### plot #########################
+
+cum_mistake = numpy.cumsum(mistake)
+pylab.xlabel("Number of Examples Seen")
+pylab.ylabel("Cumulative Number of Mistakes")
+pylab.plot(cum_mistake)
+pylab.show()
