@@ -26,12 +26,6 @@ norm_testdata.shape = (len(testdata[:,0]),len(testdata[0,:]))
 
 for i, row in enumerate(testdata):
     norm_testdata[i,:] = row / numpy.linalg.norm(row)  
-    
-### create subsample of size 10
-
-# sub_data = norm_traindata[0:10,]
-# sub_label = label[0:10,]
-
 
 ### sample size and data dimension
 
@@ -39,54 +33,41 @@ N = len(label)
 M = len(norm_testdata[:,0])
 dim = len(norm_traindata[0,:])
 
-
 ######################### training #########################
 
+### set step size
+
+eta = 1
+
+### set convergence threshold
+
+epsilon = 0.0001
 
 ### initial value of w
 
 w = numpy.zeros(dim)
 
-### mistake recorder
+### loop
 
-mistake = numpy.empty(N)
+slope = 1
 
-### training loop 
-
-for i, x in enumerate(norm_traindata):
-    
-    y_hat = math.copysign(1, numpy.dot(x,w))
-    y = label[i]
-    
-    if y == y_hat:
-        mistake[i] = 0
-    elif y_hat == -1 and y == 1:
-        w = w + x
-        mistake[i] = 1   
-    elif y_hat == 1 and y == -1:
-        w = w - x
-        mistake[i] = 1
-        
+while  slope > epsilon:
+    delta = numpy.zeros(dim)
+    for i, x in enumerate(norm_traindata):
+        if label[i] * numpy.dot(w, x) <= 0:
+            delta = delta - label[i] * x
+    delta = delta / N
+    slope = numpy.linalg.norm(delta)
+    w = w - eta * delta     
 
 ######################### test #########################
 
 
-prediction = numpy.empty(M)
+prediction_batch = numpy.empty(M)
 
 for i, x in enumerate(norm_testdata):
-    prediction[i] = math.copysign(1, numpy.dot(x,w))
+    prediction_batch[i] = math.copysign(1, numpy.dot(x,w))
+ 
+print prediction_batch
   
-print prediction
-
-### export data
-  
-# numpy.savetxt("test200.label.35.ushioda", prediction, fmt = '%i')
-
-
-######################### plot #########################
-
-# cum_mistake = numpy.cumsum(mistake)
-# pylab.xlabel("Number of Examples Seen")
-# pylab.ylabel("Cumulative Number of Mistakes")
-# pylab.plot(cum_mistake)
-# pylab.show()
+# numpy.savetxt("test200.label.35.ushioda_batch", prediction, fmt = '%i')
