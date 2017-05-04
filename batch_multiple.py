@@ -3,6 +3,7 @@
 import numpy
 import math
 import pylab
+from batch_func import batch
 
 ### load the training data and labels
 
@@ -26,48 +27,51 @@ norm_testdata.shape = (len(testdata[:,0]),len(testdata[0,:]))
 
 for i, row in enumerate(testdata):
     norm_testdata[i,:] = row / numpy.linalg.norm(row)  
-
-### sample size and data dimension
-
-N = len(label)
-M = len(norm_testdata[:,0])
-dim = len(norm_traindata[0,:])
+    
 
 ######################### training #########################
 
 ### set step size
 
-eta = 1
+eta = 0.1
 
 ### set convergence threshold
 
 epsilon = 0.0001
 
+### set number of cycles to go through data
+
+cycle = 20
+
 ### initial value of w
 
-w = numpy.zeros(dim)
+w_initial = numpy.zeros(len(traindata[0,:]))
 
 ### loop
 
-slope = 1
+for j in range(cycle):
+    w = batch(label, norm_traindata, norm_testdata, w_initial, eta, epsilon)
+    if j == 0:
+        w_0 = w
+    if j == cycle - 1:
+        w_end = w
+    w_initial = w
 
-while  slope > epsilon:
-    delta = numpy.zeros(dim)
-    for i, x in enumerate(norm_traindata):
-        if label[i] * numpy.dot(w, x) <= 0:
-            delta = delta - label[i] * x
-    delta = delta / N
-    slope = numpy.linalg.norm(delta)
-    w = w - eta * delta     
+if all(w_0 == w_end):
+    print "same"
+else:
+    print "different"    
+
+# print w
+# numpy.savetxt("test200.label.35.ushioda_batch_multiple", w, fmt = '%i')
 
 ######################### test #########################
 
 
-prediction_batch = numpy.empty(M)
+prediction_batch = numpy.empty(len(testdata))
 
 for i, x in enumerate(norm_testdata):
     prediction_batch[i] = math.copysign(1, numpy.dot(x,w))
- 
+
+# numpy.savetxt("test200.label.35.ushioda_batch_multiple", prediction_batch, fmt = '%i') 
 print prediction_batch
-  
-# numpy.savetxt("test200.label.35.ushioda_batch", prediction_batch, fmt = '%i')

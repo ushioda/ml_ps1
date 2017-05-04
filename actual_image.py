@@ -7,7 +7,7 @@ imagedata = numpy.loadtxt("test200.databw.35")
 
 # which example do you want to see?
 
-example = 85
+example = 185
 
 # plot 
 

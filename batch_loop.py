@@ -45,7 +45,8 @@ epsilon = 0.0001
 
 ### initial value of w
 
-w = numpy.zeros(dim)
+# w = numpy.zeros(dim)
+w = numpy.loadtxt("w_4")
 
 ### loop
 
@@ -67,7 +68,9 @@ prediction_batch = numpy.empty(M)
 
 for i, x in enumerate(norm_testdata):
     prediction_batch[i] = math.copysign(1, numpy.dot(x,w))
- 
+
+numpy.savetxt("test200.label.35.ushioda_batch_five", prediction_batch, fmt = '%i') 
 print prediction_batch
   
-# numpy.savetxt("test200.label.35.ushioda_batch", prediction_batch, fmt = '%i')
+numpy.savetxt("w_5", w, fmt='%10.7f', delimiter='\t')
+print "done"

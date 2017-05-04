@@ -46,6 +46,7 @@ dim = len(norm_traindata[0,:])
 ### initial value of w
 
 w = numpy.zeros(dim)
+# w = numpy.loadtxt("w_1")
 
 ### mistake recorder
 
@@ -66,7 +67,8 @@ for i, x in enumerate(norm_traindata):
     elif y_hat == 1 and y == -1:
         w = w - x
         mistake[i] = 1
-        
+
+# numpy.savetxt("w_1", w, fmt='%10.7f', delimiter='\t')       
 
 ######################### test #########################
 
@@ -80,7 +82,7 @@ print prediction
 
 ### export data
   
-# numpy.savetxt("test200.label.35.ushioda", prediction, fmt = '%i')
+numpy.savetxt("test200.label.35.ushioda_online", prediction, fmt = '%i')
 
 
 ######################### plot #########################
